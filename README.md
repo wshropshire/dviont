@@ -2,7 +2,7 @@
 
 ## Overview
 
-dviONT (DNA Variant Identification using ONT) is a variant calling pipeline designed specifically for Q20+ Oxford Nanopore Technologies sequencing data. This pipeline was heavily inspired by (1) Torsten Seemann's [short-read variant calling tool Snippy](https://github.com/tseemann/snippy) and (2) The best practices of ONT long-read variant calling as described in [this Michael Hall et al. eLife 2024 paper](https://doi.org/10.7554/eLife.98300). The pipeline facilitates the following:
+dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipeline designed specifically for Q20+ Oxford Nanopore Technologies sequencing data. This pipeline was heavily inspired by (1) Torsten Seemann's [short-read variant calling tool Snippy](https://github.com/tseemann/snippy) and (2) The best practices of ONT long-read variant calling as described in [this Michael Hall et al. eLife 2024 paper](https://doi.org/10.7554/eLife.98300). The pipeline facilitates the following:
 
 1. Alignment of ONT sequencing reads that have been basecalled using dorado (tested with v.0.9.1) and the super accurate model (r1041_e82_400bps_sup_v500) to provided reference genome using Minimap2.
 2. Variant calling using Clair3 parameters following best practices as described in aforementioned eLife journal article.
@@ -30,7 +30,7 @@ dviONT (DNA Variant Identification using ONT) is a variant calling pipeline desi
 ```bash
 git clone https://github.com/wshropshire/dviont
 cd dviont
-conda env create -f dviont.yaml
+conda env create -f ./build/dviont_env.yaml
 ```
 
 Ensure all required executables (e.g., Minimap2, Clair3, SnpEff) are in your PATH or specify their paths accordingly. Specifically, the dviont executable will be in the `bin` directory so either create a symlink to conda environment or modify your bashrc/zshrc script as necessary:
@@ -45,6 +45,13 @@ I don't know how to make conda packages, but open to help from others 😀
 ---
 
 ## Usage
+
+Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
+```bash
+./dviont/bin/download_clair3_models [--output-dir] [model_name(s)] 
+```
+
+By default if you execute the `download_clair3_models` script without arguments it will download `r1041_e82_400bps_sup_v500, r1041_e82_400bps_sup_v420,r941_prom_sup_g5014` into the `models` sub-directory of `dviont`.
 
 The pipeline can be executed using the following command:
 
@@ -142,4 +149,4 @@ Feel free to contribute to the project by submitting issues or pull requests.
 
 ## Version
 
-dviONT v0.0.1
+dviONT v0.1.1

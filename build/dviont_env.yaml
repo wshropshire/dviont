@@ -1,8 +1,8 @@
-name: dviont
+#conda env export > environment.yml
+
+name: dviont_env
 channels:
   - bioconda
-  - conda-forge
-  - r
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_gnu
@@ -196,4 +196,4 @@ dependencies:
   - pip:
       - argparse==1.4.0
       - cython==3.0.10
-prefix: /home/wcshropshire/miniconda3/envs/dviont
+prefix: <path/to/virtual/env/>

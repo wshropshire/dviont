@@ -33,9 +33,7 @@ def get_parser():
     )
 
     parser.add_argument(
-        "--output-dir",
-        default=DEFAULT_MODELS_DIR,
-        help=f"Directory to save downloaded models (default: {DEFAULT_MODELS_DIR})"
+        "-o", "--output_dir", default=DEFAULT_MODELS_DIR, help=f"Directory to save downloaded models (default: {DEFAULT_MODELS_DIR})"
     )
 
     return parser
