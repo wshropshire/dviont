@@ -130,7 +130,7 @@ EFFECT | The `snpEff` annotated consequence of this variant (ANN tag in .vcf)
 
 ## License
 
-[MIT License](LICENSE)
+[MIT License](LICENSE.txt)
 
 ---
 
