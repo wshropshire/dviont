@@ -101,7 +101,7 @@ def run_clair3(output_dir, ref, bam_output, threads=2, model_name="r1041_e82_400
             # Normalize the VCF using bcftools norm (left-align, right-align, split multi-allelic variants)
             norm_vcf = os.path.join(output_dir, f"{sample}_output.filt.norm.vcf.gz")
             bcftools_norm_cmd = [
-                "bcftools", "norm", "-m-both", "-f", os.path.abspath(ref), vcf_out_filt, "-O", "z", "-o", norm_vcf
+                "bcftools", "norm", "-a", "-m-both", "-f", os.path.abspath(ref), vcf_out_filt, "-O", "z", "-o", norm_vcf
             ]
             logging.info(f"🔹 Running bcftools norm to normalize variants: {' '.join(bcftools_norm_cmd)}")
             subprocess.run(bcftools_norm_cmd, check=True)
