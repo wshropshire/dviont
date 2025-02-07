@@ -1,0 +1,8 @@
+include README.md
+include LICENSE.txt
+
+recursive-include scripts *
+recursive-include data *
+recursive-include models *
+recursive-include etc *
+recursive-include binaries *

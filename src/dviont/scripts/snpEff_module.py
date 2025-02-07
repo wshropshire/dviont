@@ -2,7 +2,7 @@ import os
 import subprocess
 import shutil
 import logging
-from extract_headers import extract_headers_from_fasta
+from .extract_headers import extract_headers_from_fasta
 
 
 def run_snpEff(output_dir, vcf_out, ref, sample=""):

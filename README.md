@@ -25,22 +25,20 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 
 **NOTE** I've only tested this with a Linux, RHEL 7.9 operating system. I am not sure how this will function in other OS environments. The easiest way to install is:
 
-(1) Clone the GitHub repository and then (2) create a conda environment. **Make sure to modify the env name and prefix in the yaml file to point to correct conda environment**
+(1) Clone the GitHub repository and then (2) create a conda environment. 
 
 ```bash
 git clone https://github.com/wshropshire/dviont
 cd dviont
-conda env create -f ./build/dviont_env.yaml
+# Create a conda environment
+conda env create -n dviont_env python=3.9
+pip3 install build
+# Build a sparse dviont package
+python -m build
+pip3 install dist/dviont-0.1.1.tar.gz
+# Use yaml file to build environment with all dependencies - issues with pip/conda install 'path collisions' due to pre-installed python. All dependencies are properly downloaded and identified.
+conda env update --name dviont_env --file ./src/dviont/build/dviont_env.yaml
 ```
-
-Ensure all required executables (e.g., Minimap2, Clair3, SnpEff) are in your PATH or specify their paths accordingly. Specifically, the dviont executable will be in the `bin` directory so either create a symlink to conda environment or modify your bashrc/zshrc script as necessary:
-
-```bash
-echo 'export PATH="$PATH:/path/to/dviont/bin"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-I don't know how to make conda packages, but open to help from others 😀
 
 ---
 
