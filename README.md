@@ -31,7 +31,7 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 git clone https://github.com/wshropshire/dviont
 cd dviont
 # Create a conda environment
-conda env create -n dviont_env python=3.9
+conda create -n dviont_env python=3.9
 conda activate dviont_env
 pip3 install build
 # Build a sparse dviont package
