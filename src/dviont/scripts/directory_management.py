@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import subprocess
 
 class PipelineManager:
     def __init__(self, output_dir, sample):
@@ -64,3 +65,14 @@ class PipelineManager:
     def get_log_file(self):
         """Returns the log file path."""
         return self.log_file
+
+def run_command(command):
+    """Run a shell command and handle errors."""
+    logging.info(f"Running command: {command}")
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Command failed: {command}")
+        logging.error(f"Error output: {e.stderr}")
+        return None

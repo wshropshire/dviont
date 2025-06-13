@@ -18,7 +18,7 @@ def run_minimap2_alignment(fasta_file, reads, threads, output_dir, sample):
     """
     bam_output = os.path.join(output_dir, f"{sample}_aln_sort.bam")
 
-    minimap_cmd = ["minimap2", "-t", str(threads), "-ax", "lr:hq", fasta_file, reads]
+    minimap_cmd = ["minimap2", "-t", str(threads), "-ax", "lr:hq", "-O", "20,60", fasta_file, reads]
     samtools_sort_cmd = ["samtools", "sort", "-@", str(threads), "-o", bam_output]
 
     try:

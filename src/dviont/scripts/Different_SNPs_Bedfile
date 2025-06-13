@@ -1,0 +1,5 @@
+# Checking differing snps
+bcftools query -f '%CHROM\t%POS\n' CR-0005_snps_and_dels.vcf.gz | sort -k1,1 -k2,2n - > CR-0005_snpsort.bed
+bcftools query -f '%CHROM\t%POS\n' CR-0063_snps_and_dels.vcf.gz | sort -k1,1 -k2,2n - > CR-0063_snpsort.bed
+
+comm -3 CR-0005_snpsort.bed CR-0063_snpsort.bed | awk '{print $1, $2-1, $2}' OFS="\t" - > differing_snps.bed
