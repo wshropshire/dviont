@@ -86,7 +86,7 @@ dviont \
 Note that I have included example fasta/GenBank reference files as well as ONT Q20+ reads in the `data` directory
 
 ```bash
-python3 dviONT.py \
+dviont \
     -o ./data/dviont_results \
     -r ./data/test.gb \
     -i ./data/reads.fastq.gz \
