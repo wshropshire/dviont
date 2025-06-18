@@ -55,7 +55,7 @@ By default if you execute the `download_clair3_models` script without arguments 
 The pipeline can be executed using the following command:
 
 ```bash
-./dviont/bin/dviont \
+dviont \
     -o <output_directory> \
     -r <reference_genome> \
     -i <reads_file> \
