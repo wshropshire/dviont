@@ -30,7 +30,7 @@ dependencies:
   - certifi=2024.12.14=pyhd8ed1ab_0
   - cffi=1.14.4=py39he88106c_0
   - charset-normalizer=3.2.0=pyhd8ed1ab_0
-  - clair3=1.0.10=py39h46983ab_0
+  - clair3=1.1.2
   - click=8.1.7=unix_pyh707e725_0
   - coin-or-cbc=2.10.10=h9002f0b_0
   - coin-or-cgl=0.60.7=h516709c_0
