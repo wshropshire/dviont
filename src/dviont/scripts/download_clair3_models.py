@@ -13,7 +13,8 @@ MODEL_BASE_URL = "https://cdn.oxfordnanoportal.com/software/analysis/models/clai
 DEFAULT_MODELS = [
     "r1041_e82_400bps_sup_v500",
     "r1041_e82_400bps_sup_v420",
-    "r941_prom_sup_g5014"
+    "r941_prom_sup_g5014",
+    "r1041_e82_400bps_sup_v430_bacteria_finetuned"
 ]
 
 # Set default directory to store models (relative to script location)

@@ -6,7 +6,7 @@ import pysam
 from .merge_vcfs import merge_vcfs  # Import merge function
 
 class Clair3Pipeline:
-    def __init__(self, output_dir, ref, bam_output, sample, threads=2, model_name="r1041_e82_400bps_sup_v500", model_path=None):
+    def __init__(self, output_dir, ref, bam_output, sample, threads=2, model_name="r1041_e82_400bps_sup_v430_bacteria_finetuned", model_path=None):
         """Initializes the Clair3Pipeline class."""
         self.output_dir = os.path.abspath(output_dir)
         self.ref = os.path.abspath(ref)
@@ -44,7 +44,8 @@ class Clair3Pipeline:
                 "--include_all_ctgs",
                 "--haploid_precise",
                 "--no_phasing_for_fa",
-                "--snp_min_af=0.02", # Testing minimum AF at lower proportion (incraese SNP sensitivity)
+#                "--snp_min_af=0.02", # Testing minimum AF at lower proportion (incraese SNP sensitivity)
+                
                 "--enable_long_indel"
             ]
 

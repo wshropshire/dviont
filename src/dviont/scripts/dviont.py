@@ -27,7 +27,7 @@ def get_arguments():
     parser.add_argument("-r", "--ref", required=True, help="Path to reference genome file (FASTA or GBK)")
     parser.add_argument("-i", "--reads", required=True, help="Path to reads file (FASTQ)")
     parser.add_argument("-t", "--threads", type=int, default=2, help="Number of threads to use (default: 2)")
-    parser.add_argument("-m", "--model_name", default="r1041_e82_400bps_sup_v500", help="Model name for Clair3 (default: r1041_e82_400bps_sup_v500)")
+    parser.add_argument("-m", "--model_name", default="r1041_e82_400bps_sup_v430_bacteria_finetuned", help="Model name for Clair3 (default: r1041_e82_400bps_sup_v430_bacteria_finetuned)")
     parser.add_argument("-s", "--sample", default="SAMPLE", help="Sample name")
     parser.add_argument("-p", "--model_path", default=None, help="Path to Clair3 model (optional)")
     parser.add_argument("-v", "--version", action="version", version=f"dviONT v{__version__}", help="Show version and exit")
