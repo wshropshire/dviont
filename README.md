@@ -36,7 +36,7 @@ conda activate dviont_env
 pip3 install build
 # Build a sparse dviont package
 python -m build
-pip3 install ./dist/dviont-0.1.1.tar.gz
+pip3 install ./dist/dviont-0.2.1.tar.gz
 # Use yaml file to build environment with all dependencies - issues with pip/conda install 'path collisions' due to pre-installed python. All dependencies are properly downloaded and identified.
 conda env update --name dviont_env --file ./src/dviont/build/dviont_env.yaml
 ```

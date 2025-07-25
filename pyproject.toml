@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dviont"
-version = "0.1.1"
+version = "0.2.1"
 description = "dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipeline designed for Q20+ Oxford Nanopore Technologies sequencing data."
 readme = "README.md"
 requires-python = ">=3.9"
