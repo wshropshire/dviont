@@ -7,7 +7,7 @@ import requests
 import tarfile
 
 # Base URL for downloading Clair3 models
-MODEL_BASE_URL = "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/"
+MODEL_BASE_URL = "https://www.bio8.cs.hku.hk/clair3/clair3_models/"
 
 # Default Clair3 models to download
 DEFAULT_MODELS = [
