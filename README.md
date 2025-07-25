@@ -50,7 +50,7 @@ Before use for the first time, you can execute the `download_clair3_models.py` t
 ./dviont/bin/download_clair3_models [--output-dir] [model_name(s)] 
 ```
 
-By default if you execute the `download_clair3_models` script without arguments it will download `r1041_e82_400bps_sup_v500, r1041_e82_400bps_sup_v420,r941_prom_sup_g5014` into the `models` sub-directory of `dviont`.
+By default if you execute the `download_clair3_models` script without arguments it will download `r1041_e82_400bps_sup_v430_bacteria_finetuned, r1041_e82_400bps_sup_v500, r1041_e82_400bps_sup_v420,r941_prom_sup_g5014` into the `models` sub-directory of `dviont`.
 
 The pipeline can be executed using the following command:
 
@@ -74,7 +74,7 @@ The pipeline can be executed using the following command:
 ### Optional Arguments
 
 - `-t`, `--threads`: Number of threads to use (default: 2).
-- `-m`, `--model_name`: Clair3 model name (default: `r1041_e82_400bps_sup_v500`).
+- `-m`, `--model_name`: Clair3 model name (default: `r1041_e82_400bps_sup_v430_bacteria_finetuned`).
 - `-p`, `--model_path`: Path to the Clair3 model (optional).
 - `-s`, `--sample`: Prefix for output (default: `SAMPLE`).
 - `-v`, `--version`: Display the version of the dviONT pipeline.
@@ -148,4 +148,4 @@ Feel free to contribute to the project by submitting issues or pull requests.
 
 ## Version
 
-dviONT v0.1.1
+dviONT v0.2.1
