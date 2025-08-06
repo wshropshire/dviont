@@ -6,3 +6,4 @@ recursive-include data *
 recursive-include models *
 recursive-include etc *
 recursive-include binaries *
+recursive-include docs *
