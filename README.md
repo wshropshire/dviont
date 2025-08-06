@@ -1,3 +1,5 @@
+<img src="docs/DVIONT.png" width="50%">
+
 # DNA Variant Identification using ONT (dviONT) Pipeline
 
 ## Overview

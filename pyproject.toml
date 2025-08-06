@@ -46,7 +46,7 @@ download_clair3_models = "dviont.scripts.download_clair3_models:main"
 include-package-data = true
 
 [tool.setuptools.package-data]
-dviont = ["data/**", "models/**", "etc/**", "build/**", "binaries/**"]
+dviont = ["data/**", "models/**", "docs/**", "etc/**", "build/**", "binaries/**"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
