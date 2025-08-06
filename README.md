@@ -45,7 +45,7 @@ conda env update --name dviont_env --file ./src/dviont/build/dviont_env.yaml
 
 ## Usage
 
-> [!WARNING]
+> [!TIP]
 > Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
 ```bash
 ./dviont/bin/download_clair3_models [--output-dir] [model_name(s)] 
