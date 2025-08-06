@@ -1,4 +1,4 @@
-# dviONT Pipeline
+# DNA Variant Identification using ONT (dviONT) Pipeline
 
 ## Overview
 
