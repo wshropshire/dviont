@@ -23,9 +23,9 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 
 ## Installation
 
-**NOTE** I've only tested this with a Linux, RHEL 7.9 operating system. I am not sure how this will function in other OS environments. The easiest way to install is:
-
-(1) Clone the GitHub repository and then (2) create a conda environment. 
+> [!WARNING]
+> I've only tested this with a Linux, RHEL 7.9 operating system. I am not sure how this will function in other OS environments. The easiest way to install is:
+>(1) Clone the GitHub repository and then (2) create a conda environment. 
 
 ```bash
 git clone https://github.com/wshropshire/dviont
@@ -45,7 +45,8 @@ conda env update --name dviont_env --file ./src/dviont/build/dviont_env.yaml
 
 ## Usage
 
-Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
+> [!WARNING]
+> Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
 ```bash
 ./dviont/bin/download_clair3_models [--output-dir] [model_name(s)] 
 ```
