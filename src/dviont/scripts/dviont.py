@@ -68,7 +68,7 @@ def main():
         bam_output = run_minimap2_alignment(fasta_out, reads, threads, output_dir, sample)
 
         # Step 5: Run Clair3 to generate a VCF file
-        vcf_out = run_clair3(output_dir, fasta_out, bam_output, threads, model_name, sample, model_path)
+        vcf_out, consensus_path = run_clair3(output_dir, fasta_out, bam_output, threads, model_name, sample, model_path)
 
         # Step 6: Optionally run SnpEff for annotation (if reference is GenBank)
         if ref_fmt == "genbank":

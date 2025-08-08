@@ -82,7 +82,12 @@ class Clair3Pipeline:
             self.filter_multiallelic_sites(norm_vcf, final_sorted_vcf)
 
             logging.info(f"✅ Clair3 pipeline complete. Final sorted VCF: {final_sorted_vcf}")
-            return final_sorted_vcf
+
+            # Generate consensus FASTA
+            consensus_path = os.path.join(self.output_dir, f"{self.sample}_consensus.fasta")
+            self.generate_consensus(final_sorted_vcf, consensus_path)
+
+            return final_sorted_vcf, consensus_path
 
         except subprocess.CalledProcessError as e:
             logging.error(f"❌ Clair3 execution failed: {e}")
@@ -153,6 +158,19 @@ class Clair3Pipeline:
 
         return output_vcf
 
+    def generate_consensus(self, vcf_path, consensus_output_path):
+        """Generate consensus FASTA using bcftools."""
+        # Ensure VCF is indexed
+        try:
+            subprocess.run(["bcftools", "index", vcf_path], check=True)
+        except subprocess.CalledProcessError:
+            logging.warning("Indexing failed or already exists.")
+
+        # Generate consensus FASTA
+        with open(consensus_output_path, "w") as out_fasta:
+            subprocess.run(["bcftools", "consensus", "-f", self.ref, vcf_path], stdout=out_fasta, check=True)
+
+        logging.info(f"✅ Consensus FASTA written to: {consensus_output_path}")
 
 def run_clair3(output_dir, ref, bam_output, threads, model_name, sample, model_path=None):
     """
