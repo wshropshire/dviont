@@ -19,7 +19,7 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 - **Reference Support:** Handles both FASTA and GenBank formats.
 - **Variant Calling:** Leverages Clair3 which has been shown to have precision/recall for variant calling using Q20+ ONT reads comparable or even better than some short-read variant calling workflows.
 - **Annotation:** SnpEff integration for functional annotation of variants.
-- **Consensus Fasta File** Generate consensus fasta file based off filtered Clair3 VCF file output, which can be used for genome assembly QC purposes.
+- **Consensus Fasta File:** Generate consensus fasta file based off filtered Clair3 VCF file output, which can be used for genome assembly QC purposes.
 - **Core Genome Alignment:** Currently in production; can use the normalized vcf output to potentially create a core genome alignment that can be used to infer a phylogeny.
 
 ---
