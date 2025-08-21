@@ -19,5 +19,3 @@ dependencies:
   - ca-certificates
   - openssl
   - certifi
-  - pip:
-      - ./dist/dviont-0.3.1.tar.gz
