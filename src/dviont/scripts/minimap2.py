@@ -2,7 +2,15 @@ import subprocess
 import os
 import logging
 
-def run_minimap2_alignment(fasta_file, reads, threads, output_dir, sample):
+PRESET_TO_X = {
+    "ont-legacy": "map-ont",  # R9.x Guppy HAC simplex / noisier ONT
+    "ont-q20":    "lr:hq",    # R10 Q20+ accurate long reads (minimap2 >= 2.27)
+    "pb-clr":     "map-pb",   # PacBio CLR
+    "pb-hifi":    "map-hifi", # PacBio HiFi/CCS
+    "asm":        "asm5",     # assembly-to-assembly (intra-species)
+}
+
+def run_minimap2_alignment(fasta_file, reads, threads, output_dir, sample, preset="ont-q20"):
     """
     Run Minimap2 alignment and sort the output BAM file with sample name.
 
@@ -12,13 +20,21 @@ def run_minimap2_alignment(fasta_file, reads, threads, output_dir, sample):
         threads (int): Number of threads to use.
         output_dir (str): Directory where the output BAM file will be saved.
         sample (str): Sample name to append to the output BAM file name.
-    
+        preset (str): Preset to use based on chemistry and basecaller used.
     Returns:
         str: Path to the sorted BAM file if successful, None if failed.
     """
     bam_output = os.path.join(output_dir, f"{sample}_aln_sort.bam")
+    
+    # Resolve minimap2 -x based on preset
+    x_value = PRESET_TO_X.get(preset, "lr:hq")
+    
+    extra = ["-O", "20,60"] if preset == "ont-legacy" else []
 
-    minimap_cmd = ["minimap2", "-t", str(threads), "-ax", "lr:hq", "-O", "20,60", fasta_file, reads]
+    logging.info(f"Preset requested: {preset}")
+    logging.info(f"minimap2 -x will be set to: {x_value}")
+
+    minimap_cmd = ["minimap2", "-t", str(threads), "-ax", x_value] + extra + [fasta_file, reads]
     samtools_sort_cmd = ["samtools", "sort", "-@", str(threads), "-o", bam_output]
 
     try:
@@ -57,7 +73,7 @@ def run_minimap2_alignment(fasta_file, reads, threads, output_dir, sample):
         return bam_output
 
     except subprocess.CalledProcessError as e:
-        logginf.error(f"❌ Error running Minimap2 or Samtools: {e.stderr}")
+        logging.error(f"❌ Error running Minimap2 or Samtools: {e.stderr}")
         return None
     except Exception as e:
         logging.error(f"❌ Unexpected error: {e}")
