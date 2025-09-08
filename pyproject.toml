@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dviont"
-version = "0.1.1"
+version = "0.3.1"
 description = "dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipeline designed for Q20+ Oxford Nanopore Technologies sequencing data."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -46,7 +46,7 @@ download_clair3_models = "dviont.scripts.download_clair3_models:main"
 include-package-data = true
 
 [tool.setuptools.package-data]
-dviont = ["data/**", "models/**", "etc/**", "build/**", "binaries/**"]
+dviont = ["data/**", "models/**", "docs/**", "etc/**", "build/**", "binaries/**"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

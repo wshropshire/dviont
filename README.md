@@ -1,4 +1,6 @@
-# dviONT Pipeline
+<img src="src/dviont/docs/DVIONT.png" width="50%">
+
+# DNA Variant Identification using ONT (dviONT) Pipeline
 
 ## Overview
 
@@ -17,15 +19,16 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 - **Reference Support:** Handles both FASTA and GenBank formats.
 - **Variant Calling:** Leverages Clair3 which has been shown to have precision/recall for variant calling using Q20+ ONT reads comparable or even better than some short-read variant calling workflows.
 - **Annotation:** SnpEff integration for functional annotation of variants.
+- **Consensus Fasta File:** Generate consensus fasta file based off filtered Clair3 VCF file output, which can be used for genome assembly QC purposes.
 - **Core Genome Alignment:** Currently in production; can use the normalized vcf output to potentially create a core genome alignment that can be used to infer a phylogeny.
 
 ---
 
 ## Installation
 
-**NOTE** I've only tested this with a Linux, RHEL 7.9 operating system. I am not sure how this will function in other OS environments. The easiest way to install is:
-
-(1) Clone the GitHub repository and then (2) create a conda environment. 
+> [!WARNING]
+> I've only tested this with a Linux, RHEL 7.9 operating system. I am not sure how this will function in other OS environments. The easiest way to install is:
+>(1) Clone the GitHub repository and then (2) create a conda environment. 
 
 ```bash
 git clone https://github.com/wshropshire/dviont
@@ -45,12 +48,13 @@ conda env update --name dviont_env --file ./src/dviont/build/dviont_env.yaml
 
 ## Usage
 
-Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
+> [!TIP]
+> Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
 ```bash
 ./dviont/bin/download_clair3_models [--output-dir] [model_name(s)] 
 ```
 
-By default if you execute the `download_clair3_models` script without arguments it will download `r1041_e82_400bps_sup_v500, r1041_e82_400bps_sup_v420,r941_prom_sup_g5014` into the `models` sub-directory of `dviont`.
+By default if you execute the `download_clair3_models` script without arguments it will download `r1041_e82_400bps_sup_v430_bacteria_finetuned, r1041_e82_400bps_sup_v500, r1041_e82_400bps_sup_v420,r941_prom_sup_g5014` into the `models` sub-directory of `dviont`.
 
 The pipeline can be executed using the following command:
 
@@ -74,7 +78,7 @@ dviont \
 ### Optional Arguments
 
 - `-t`, `--threads`: Number of threads to use (default: 2).
-- `-m`, `--model_name`: Clair3 model name (default: `r1041_e82_400bps_sup_v500`).
+- `-m`, `--model_name`: Clair3 model name (default: `r1041_e82_400bps_sup_v430_bacteria_finetuned`).
 - `-p`, `--model_path`: Path to the Clair3 model (optional).
 - `-s`, `--sample`: Prefix for output (default: `SAMPLE`).
 - `-v`, `--version`: Display the version of the dviONT pipeline.
@@ -101,6 +105,7 @@ dviont \
 
 - **Aligned Sorted Reads:** `<output_dir>/<sample_name>_aligned_reads.bam`
 - **Filtered Variants:** `<output_dir>/<sample_name>_output.filt.vcf`
+- **Consensus Fasta File** `<output_dir>/<sample_name>_consenus.fasta`
 - **Normalized Variants (For core genome alignment):**`<output_dir>/<sample_name>_output.filt.norm.vcf.gz`
 - **Filtered Annotated Variants (if GenBank):** `<output_dir>/<sample_name>_annotated.vcf`
 - **dviONT Variant Calling Report:** `<output_dir>/<sample_name>_dviont_report.tsv`
@@ -148,4 +153,4 @@ Feel free to contribute to the project by submitting issues or pull requests.
 
 ## Version
 
-dviONT v0.1.1
+dviONT v0.3.1

@@ -1,11 +1,12 @@
 import csv
 from Bio import SeqIO
 import os
+import gzip
 
 class VCFProcessor:
     def __init__(self, vcf_file, ref_fmt, output_dir, sample, genbank_file=None):
         self.vcf_file = vcf_file
-        self.ref_fmt = ref_fmt
+        self.ref_fmt = ref_fmt.lower()
         self.output_dir = output_dir
         self.sample = sample
         self.genbank_file = genbank_file
@@ -30,13 +31,19 @@ class VCFProcessor:
             header += ["ANNOT", "IMPACT", "GENE", "LOCUS_TAG", "HGVS.c", "HGVS.p", "PRODUCT_ID", "PRODUCT"]
 
         rows = []
-        with open(self.vcf_file, 'r') as vcf:
+
+        open_func = gzip.open if self.vcf_file.endswith(".gz") else open
+        with open_func(self.vcf_file, 'rt') as vcf:
             for line in vcf:
                 if line.startswith("#"):
                     continue
 
                 fields = line.strip().split("\t")
-                chrom, pos, _, ref, alt, _, _, info, format_col, *samples = fields
+                # Minimum 8 columns for a valid VCF
+                if len(fields) < 8:
+                    continue
+
+                chrom, pos, _, ref, alt, _, _, info, *rest = fields
 
                 # Determine TYPE
                 if len(ref) == 1 and len(alt) == 1:
@@ -47,18 +54,20 @@ class VCFProcessor:
                     variant_type = "INDEL"
 
                 # Extract EVIDENCE
-                sample_data = [item for part in samples[0].split(":") for item in part.split(",")]
-                if len(sample_data) >=6:
-                    ref_count = f"{sample_data[2]}/{sample_data[3]}"
-                    alt_count = f"{sample_data[2]}/{sample_data[4]}"
-                    evidence = f"ALT:{alt_count};REF:{ref_count}"
-                else:
-                    evidence = "NA"
+                evidence = "NA"
+                if rest:
+                    sample_fields = rest[-1].split(":")  # FORMAT: GT:GQ:DP:AD:AF
+                    if len(sample_fields) >= 4:
+                        dp = sample_fields[2]
+                        ad_values = sample_fields[3].split(",")  # e.g. "15,19"
+                        if len(ad_values) >= 2:
+                            ref_count, alt_count = ad_values[0], ad_values[1]
+                            evidence = f"ALT:{dp}/{alt_count};REF:{dp}/{ref_count}"
 
                 row = [chrom, pos, variant_type, ref, alt, evidence]
 
-                if self.ref_fmt == "genbank":
-                    # Parse INFO field
+                # Only add GenBank annotations if requested
+                if self.ref_fmt == "genbank" and "ANN=" in info:
                     info_fields = info.split("|")
                     annot = info_fields[1] if len(info_fields) > 1 else ""
                     impact = info_fields[2] if len(info_fields) > 2 else ""
@@ -94,13 +103,3 @@ class VCFProcessor:
             writer = csv.writer(tsvfile, delimiter='\t')
             writer.writerow(header)
             writer.writerows(rows)
-
-# Example usage
-#vcf_processor = VCFProcessor(
-#    vcf_file='CR-0005_CR-00063_annotated.vcf',
-#    ref_fmt='genbank',
-#    output_dir='.',
-#    sample='test_gbk',
-#    genbank_file='./../CR-0005_FINAL.gbk'
-#)
-#vcf_processor.parse_vcf()

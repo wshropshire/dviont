@@ -7,13 +7,14 @@ import requests
 import tarfile
 
 # Base URL for downloading Clair3 models
-MODEL_BASE_URL = "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/"
+MODEL_BASE_URL = "https://www.bio8.cs.hku.hk/clair3/clair3_models/"
 
 # Default Clair3 models to download
 DEFAULT_MODELS = [
     "r1041_e82_400bps_sup_v500",
     "r1041_e82_400bps_sup_v420",
-    "r941_prom_sup_g5014"
+    "r941_prom_sup_g5014",
+    "r1041_e82_400bps_sup_v430_bacteria_finetuned"
 ]
 
 # Set default directory to store models (relative to script location)

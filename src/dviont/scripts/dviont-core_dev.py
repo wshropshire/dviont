@@ -24,7 +24,7 @@ def get_arguments():
 def extract_snps_and_dels(vcf, output_vcf): # remove snpfrac
     """Extract SNPs and deletions from the VCF file."""
  #   command = f"bcftools view -i 'TYPE=\"snp\" || (strlen(REF) > strlen(ALT))' {vcf} | bcftools filter -i 'AF>={snpfrac}' -Oz -o {output_vcf}"
-    command = f"bcftools view -i 'TYPE=\"snp\" || (strlen(REF) > strlen(ALT))' {vcf} | bcftools view -e 'GT=\"0/1\" | GT=\"1/0\"' -Oz -o {output_vcf}"
+    command = f"bcftools view -i 'TYPE=\"snp\" || (strlen(REF) > strlen(ALT))' {vcf} | bcftools view -e 'GT=\"1/0\"' -Oz -o {output_vcf}"
     run_command(command)
     run_command(f"bcftools index {output_vcf}")
 
