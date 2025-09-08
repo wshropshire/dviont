@@ -83,11 +83,11 @@ dviont \
 - `-p`, `--model_path`: Path to the Clair3 model (optional).
 - `-s`, `--sample`: Prefix for output (default: `SAMPLE`).
 - --preset: Minimap2 alignment preset (default: ont-q20).
-        ont-legacy → map-ont (ONT R9.x Guppy HAC)
-        ont-q20 → lr:hq (ONT R10 Q20+ / Dorado SUP or duplex)
-        pb-clr → map-pb (PacBio CLR)
-        pb-hifi → map-hifi (PacBio HiFi/CCS)
-        asm → asm5 (assembly-to-assembly alignment)
+    - ont-legacy → map-ont (ONT R9.x Guppy HAC)
+    - ont-q20 → lr:hq (ONT R10 Q20+ / Dorado SUP or duplex)
+    - pb-clr → map-pb (PacBio CLR)
+    - pb-hifi → map-hifi (PacBio HiFi/CCS)
+    - asm → asm5 (assembly-to-assembly alignment)
 - `-v`, `--version`: Display the version of the dviONT pipeline.
 
 ---
