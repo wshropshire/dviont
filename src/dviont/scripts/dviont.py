@@ -27,11 +27,11 @@ def get_arguments():
     parser.add_argument("-r", "--ref", required=True, help="Path to reference genome file (FASTA or GBK)")
     parser.add_argument("-i", "--reads", required=True, help="Path to reads file (FASTQ)")
     parser.add_argument("-t", "--threads", type=int, default=2, help="Number of threads to use (default: 2)")
-    parser.add_argument("-m", "--model_name", default="r1041_e82_400bps_sup_v500", help="Model name for Clair3 (default: r1041_e82_400bps_sup_v500)")
+    parser.add_argument("-m", "--model_name", default="r1041_e82_400bps_sup_v430_bacteria_finetuned", help="Model name for Clair3 (default: r1041_e82_400bps_sup_v430_bacteria_finetuned)")
     parser.add_argument("-s", "--sample", default="SAMPLE", help="Sample name")
     parser.add_argument("-p", "--model_path", default=None, help="Path to Clair3 model (optional)")
+    parser.add_argument("--preset", choices=["ont-legacy", "ont-q20", "pb-clr", "pb-hifi", "asm"], default="ont-q20", help="Alignment preset for minimap2 (default: ont-q20). Choices: ont-legacy | ont-q20 | pb-clr | pb-hifi | asm")
     parser.add_argument("-v", "--version", action="version", version=f"dviONT v{__version__}", help="Show version and exit")
-
     args = parser.parse_args()
     return args 
 
@@ -65,10 +65,10 @@ def main():
         logging.info(f"FASTA file extracted: {fasta_out}")
 
         # Step 4: Run Minimap2 to align reads
-        bam_output = run_minimap2_alignment(fasta_out, reads, threads, output_dir, sample)
+        bam_output = run_minimap2_alignment(fasta_out, reads, threads, output_dir, sample, preset=args.preset)
 
         # Step 5: Run Clair3 to generate a VCF file
-        vcf_out = run_clair3(output_dir, fasta_out, bam_output, threads, model_name, sample, model_path)
+        vcf_out, consensus_path = run_clair3(output_dir, fasta_out, bam_output, threads, model_name, sample, model_path)
 
         # Step 6: Optionally run SnpEff for annotation (if reference is GenBank)
         if ref_fmt == "genbank":
