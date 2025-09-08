@@ -34,7 +34,7 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 git clone https://github.com/wshropshire/dviont
 cd dviont
 # Create a conda environment
-conda create -n dviont_env python=3.9
+conda create -n dviont_env python=3.10
 conda activate dviont_env
 pip3 install build
 # Build a sparse dviont package
@@ -59,7 +59,7 @@ By default if you execute the `download_clair3_models` script without arguments 
 The pipeline can be executed using the following command:
 
 ```bash
-./dviont/bin/dviont \
+dviont \
     -o <output_directory> \
     -r <reference_genome> \
     -i <reads_file> \
@@ -90,7 +90,7 @@ The pipeline can be executed using the following command:
 Note that I have included example fasta/GenBank reference files as well as ONT Q20+ reads in the `data` directory
 
 ```bash
-python3 dviONT.py \
+dviont \
     -o ./data/dviont_results \
     -r ./data/test.gb \
     -i ./data/reads.fastq.gz \
