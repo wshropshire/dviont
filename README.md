@@ -109,6 +109,7 @@ dviont call \
     -r ./data/test.gb \
     -i ./data/reads.fastq.gz \
     -t 4 \
+    -p ./model/r1041_e82_400bps_sup_v500 \
     -m r1041_e82_400bps_sup_v500 \
     -s SAMPLE1 \
     --preset ont-q20
