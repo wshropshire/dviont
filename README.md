@@ -33,33 +33,76 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 ## Installation
 
 > [!WARNING]
-> dviONT has primarily been tested in Linux/HPC environments. The easiest way to install is to clone the repository, create the supplied Conda environment, and install the dviONT package.
+> dviONT has been developed and validated primarily on Linux/HPC with Clair3 v1.x (TensorFlow). Clair3 v1.x is not built for macOS, so the macOS environment uses Clair3 v2.x (PyTorch) instead. Variant calls may differ slightly between Clair3 versions, so validate macOS results against the included test data before relying on them. Clair3 does not support Intel Macs.
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/wshropshire/dviont
 cd dviont
+```
 
-# Create the dviONT environment with all required dependencies
-conda env create -f ./src/dviont/build/dviont_env.yaml
+### Linux / HPC
+
+```bash
+# Create the dviONT environment (Clair3 v1.x, Python 3.10)
+mamba env create -f ./src/dviont/build/dviont_env.yaml   # or: conda env create -f ...
 conda activate dviont_env
 
-# Build and install dviONT
-pip install build
-python -m build
-pip install ./dist/dviont-0.3.1.tar.gz
+# Install dviONT
+pip install .
+
+# Download the Clair3 models used by dviONT (run once, on a node with internet access)
+download_clair3_models
 ```
+
+### macOS (Apple Silicon)
+
+```bash
+# Confirm your conda/mamba install is native Apple Silicon; this must report osx-arm64
+conda info | grep platform
+
+# Create the dviONT environment (Clair3 v2.x, Python 3.11)
+mamba env create -f ./src/dviont/build/dviont_env_macOS.yaml
+conda activate dviont_env
+
+# Install dviONT
+pip install .
+
+# Clair3 v2 ships its PyTorch models inside the environment
+ls "$CONDA_PREFIX/bin/models"
+```
+
+> [!IMPORTANT]
+> Do not run `download_clair3_models` on macOS. It downloads Clair3 v1 (TensorFlow) models, which Clair3 v2 cannot load. Instead, pass the bundled model directory with `-p`, e.g. `-p "$CONDA_PREFIX/bin/models/r1041_e82_400bps_sup_v430_bacteria_finetuned"`.
+
+### Updating an existing installation
+
+```bash
+cd dviont
+git pull
+conda deactivate
+mamba env remove -n dviont_env -y
+mamba env create -f ./src/dviont/build/dviont_env.yaml   # macOS: dviont_env_macOS.yaml
+conda activate dviont_env
+pip install .
+download_clair3_models                                   # Linux/HPC only
+```
+
+Check the installed version with `dviont -v`.
+
+---
+
+## Clair3 models
+
+- **Linux/HPC:** `download_clair3_models` saves models into the `models` sub-directory of the installed dviONT package, which is where dviONT looks when `-p/--model-path` is omitted. Without arguments it downloads `r1041_e82_400bps_sup_v430_bacteria_finetuned`, `r1041_e82_400bps_sup_v500`, `r1041_e82_400bps_sup_v420` and `r941_prom_sup_g5014`. To download specific models or use another location: `download_clair3_models [--output_dir DIR] [model_name ...]` (then pass `-p DIR/<model_name>`).
+- **macOS:** always pass `-p "$CONDA_PREFIX/bin/models/<model_name>"`.
+
+Choose the model that matches the Dorado basecalling model used for your ONT data.
 
 ---
 
 ## Usage
-
-> [!TIP]
-> Before use for the first time, you can execute the `download_clair3_models.py` to download Clair3 models that are appropriate for the respective Dorado basecalling model used for your ONT sequencing data:
-```bash
-./dviont/bin/download_clair3_models [--output_dir] [model_name(s)]
-```
-
-By default if you execute the `download_clair3_models` script without arguments it will download `r1041_e82_400bps_sup_v430_bacteria_finetuned, r1041_e82_400bps_sup_v500, r1041_e82_400bps_sup_v420,r941_prom_sup_g5014` into the `models` sub-directory of `dviont`.
 
 The `call` command runs the standard dviONT single-isolate workflow:
 
@@ -101,19 +144,20 @@ dviont call \
 
 ## Example
 
-Note that I have included example fasta/GenBank reference files as well as ONT Q20+ reads in the `data` directory
+Example GenBank/FASTA references and ONT Q20+ reads are included in `src/dviont/data`. From the repository root:
 
 ```bash
 dviont call \
-    -o ./data/dviont_results \
-    -r ./data/test.gb \
-    -i ./data/reads.fastq.gz \
+    -o ./dviont_test_results \
+    -r ./src/dviont/data/test.gb \
+    -i ./src/dviont/data/test_sup_v500_dorado091.fastq.gz \
     -t 4 \
-    -p ./model/r1041_e82_400bps_sup_v500 \
     -m r1041_e82_400bps_sup_v500 \
     -s SAMPLE1 \
     --preset ont-q20
 ```
+
+On macOS, add `-p "$CONDA_PREFIX/bin/models/r1041_e82_400bps_sup_v500"`.
 
 ---
 
@@ -137,7 +181,7 @@ dviont cohort \
     --out cohort_out \
     --threads 16 \
     --model-name r1041_e82_400bps_sup_v430_bacteria_finetuned \
-    --model-path /path/to/clair3/models \
+    --model-path /path/to/clair3/models/r1041_e82_400bps_sup_v430_bacteria_finetuned \
     --preset ont-q20 \
     --aligner minimap2
 ```
@@ -223,4 +267,4 @@ Feel free to contribute to the project by submitting issues or pull requests.
 
 ## Version
 
-dviONT v0.3.1
+dviONT v0.5.0
