@@ -77,24 +77,6 @@ ls "$CONDA_PREFIX/bin/models"
 > [!NOTE]
 > You do not need `download_clair3_models` on macOS. It fetches Clair3 v1 (TensorFlow) models, which Clair3 v2 cannot load, so it exits without downloading when Clair3 v2 is installed.
 
-### Updating an existing installation
-
-```bash
-cd dviont
-git pull
-conda deactivate
-mamba env remove -n dviont_env -y
-mamba env create -f ./src/dviont/build/dviont_env.yaml   # macOS: dviont_env_macOS.yaml
-conda activate dviont_env
-pip install .
-hash -r          # refresh the shell's command lookup so `dviont` is found
-download_clair3_models                                   # Linux/HPC only
-```
-
-Check the installed version with `dviont -v`.
-
----
-
 ## Clair3 models
 
 dviONT finds the model named by `-m/--model-name` automatically. It looks in the `models` sub-directory of the installed dviONT package and in the models bundled with Clair3 (`$CONDA_PREFIX/bin/models`), and only uses a model whose format matches the installed Clair3 version (TensorFlow for Clair3 v1, PyTorch for Clair3 v2). Use `-p/--model-path` to point at a specific model directory instead.
