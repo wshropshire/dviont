@@ -33,7 +33,7 @@ dviONT (DNA Variant Identification using ONT) is a bacteria variant calling pipe
 ## Installation
 
 > [!WARNING]
-> dviONT has been developed and validated primarily on Linux/HPC with Clair3 v1.x (TensorFlow). Clair3 v1.x is not built for macOS, so the macOS environment uses Clair3 v2.x (PyTorch) instead. Variant calls may differ slightly between Clair3 versions, so validate macOS results against the included test data before relying on them. Clair3 does not support Intel Macs.
+> dviONT has been developed and validated primarily on Linux/HPC with Clair3 v1.2.0 (TensorFlow). Clair3 v1.2.0 is not built for macOS, so the macOS environment uses Clair3 v2.0.3 (PyTorch) instead. the MacOS VERSION IS IN DEVELOPMENT. Variant calls may differ slightly between Clair3 versions, so validate macOS results against the included test data before relying on them. Clair3 does not support Intel Macs.
 
 Clone the repository:
 
@@ -51,7 +51,6 @@ conda activate dviont_env
 
 # Install dviONT
 pip install .
-hash -r          # refresh the shell's command lookup so `dviont` is found
 
 # Download the Clair3 models used by dviONT (run once, on a node with internet access)
 download_clair3_models
