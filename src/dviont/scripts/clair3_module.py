@@ -4,6 +4,7 @@ import subprocess
 import shutil
 import pysam
 from .merge_vcfs import merge_vcfs
+from .clair3_models import resolve_model_path
 
 class Clair3Pipeline:
     def __init__(self, output_dir, ref, bam_output, sample, threads=2, model_name="r1041_e82_400bps_sup_v430_bacteria_finetuned", model_path=None):
@@ -15,9 +16,7 @@ class Clair3Pipeline:
         self.threads = threads
         self.model_name = model_name
 
-        package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-        self.model_path = model_path or os.path.join(package_root, "models", model_name)
+        self.model_path = resolve_model_path(model_name, model_path)
 
         self.clair3_output_dir = os.path.join(self.output_dir, "clair3")
 

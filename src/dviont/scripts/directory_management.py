@@ -4,16 +4,18 @@ import logging
 import subprocess
 
 class PipelineManager:
-    def __init__(self, output_dir, sample):
+    def __init__(self, output_dir, sample, model_path=None):
         """
         Initializes the PipelineManager with output directory and sample name.
         
         Args:
             output_dir (str): The path to the output directory.
             sample (str): The name of the sample.
+            model_path (str, optional): Clair3 model directory, logged at pipeline start.
         """
         self.output_dir = output_dir
         self.sample = sample
+        self.model_path = model_path
         self.log_file = None
 
     def setup_logging(self):
@@ -34,6 +36,8 @@ class PipelineManager:
         console.setFormatter(formatter)
         logging.getLogger().addHandler(console)
         logging.info(f"dviONT pipeline initiated for sample: {self.sample}")  
+        if self.model_path:
+            logging.info(f"Using Clair3 model: {self.model_path}")
 
     def create_output_directory(self):
         """

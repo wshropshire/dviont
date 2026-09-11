@@ -34,6 +34,11 @@ def get_parser():
     )
 
     parser.add_argument(
+        "--force", action="store_true",
+        help="Download even if the installed Clair3 is v2 (these are Clair3 v1/TensorFlow models)."
+    )
+
+    parser.add_argument(
         "-o", "--output_dir", default=DEFAULT_MODELS_DIR, help=f"Directory to save downloaded models (default: {DEFAULT_MODELS_DIR})"
     )
 
@@ -75,6 +80,21 @@ def main():
     """Main function to handle downloading models."""
     args = get_parser().parse_args()
     output_dir = os.path.abspath(args.output_dir)  # Resolve absolute path
+
+    try:
+        from .clair3_models import bundled_models_dirs, clair3_major_version
+    except ImportError:  # executed as a plain script
+        from clair3_models import bundled_models_dirs, clair3_major_version
+    if clair3_major_version() == 2 and not args.force:
+        bundled = next((d for d in bundled_models_dirs() if os.path.isdir(d)), "$CONDA_PREFIX/bin/models")
+        sys.stderr.write(
+            "Clair3 v2 is installed. It uses PyTorch models, which are already bundled at:\n"
+            f"  {bundled}\n"
+            "dviONT finds them automatically, so nothing needs to be downloaded.\n"
+            "This script downloads Clair3 v1 (TensorFlow) models, which Clair3 v2 cannot load.\n"
+            "Use --force to download them anyway.\n"
+        )
+        return
 
     for model_name in args.model_names:
         download_and_extract_model(model_name, output_dir)

@@ -19,7 +19,10 @@ def add_common_arguments(parser):
     parser.add_argument("-r", "--ref", required=True, help="Reference genome (FASTA or GBK)")
     parser.add_argument("-t", "--threads", type=int, default=2, help="Number of threads (default: 2)")
     parser.add_argument("-m", "--model-name", default="r1041_e82_400bps_sup_v430_bacteria_finetuned", help="Clair3 model name")
-    parser.add_argument("-p", "--model-path", default=None, help="Path to Clair3 model")
+    parser.add_argument(
+        "-p", "--model-path", default=None,
+        help="Path to Clair3 model directory (default: found automatically from the model name)",
+    )
     parser.add_argument("--preset", choices=PRESETS, default="ont-q20", help="Alignment preset (default: ont-q20)")
     parser.add_argument("--aligner", choices=["minimap2", "winnowmap"], default="minimap2", help="Read aligner (default: minimap2)")
 
@@ -76,7 +79,7 @@ def run_call(args):
     from .winnowmap import run_winnowmap_alignment
 
     start_time = time.time()
-    pipeline_manager = PipelineManager(args.output_dir, args.sample)
+    pipeline_manager = PipelineManager(args.output_dir, args.sample, model_path=args.model_path)
     ref_dir = pipeline_manager.create_output_directory()
     log_file = pipeline_manager.get_log_file()
 
@@ -231,6 +234,9 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
     try:
+        from .clair3_models import resolve_model_path
+        # Resolve the Clair3 model up front so a missing model fails before alignment starts.
+        args.model_path = resolve_model_path(args.model_name, args.model_path)
         if args.command == "call":
             run_call(args)
         else:

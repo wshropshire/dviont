@@ -51,6 +51,7 @@ conda activate dviont_env
 
 # Install dviONT
 pip install .
+hash -r          # refresh the shell's command lookup so `dviont` is found
 
 # Download the Clair3 models used by dviONT (run once, on a node with internet access)
 download_clair3_models
@@ -68,13 +69,14 @@ conda activate dviont_env
 
 # Install dviONT
 pip install .
+hash -r          # refresh the shell's command lookup so `dviont` is found
 
-# Clair3 v2 ships its PyTorch models inside the environment
+# Clair3 v2 ships its PyTorch models inside the environment; dviONT finds them automatically
 ls "$CONDA_PREFIX/bin/models"
 ```
 
-> [!IMPORTANT]
-> Do not run `download_clair3_models` on macOS. It downloads Clair3 v1 (TensorFlow) models, which Clair3 v2 cannot load. Instead, pass the bundled model directory with `-p`, e.g. `-p "$CONDA_PREFIX/bin/models/r1041_e82_400bps_sup_v430_bacteria_finetuned"`.
+> [!NOTE]
+> You do not need `download_clair3_models` on macOS. It fetches Clair3 v1 (TensorFlow) models, which Clair3 v2 cannot load, so it exits without downloading when Clair3 v2 is installed.
 
 ### Updating an existing installation
 
@@ -86,6 +88,7 @@ mamba env remove -n dviont_env -y
 mamba env create -f ./src/dviont/build/dviont_env.yaml   # macOS: dviont_env_macOS.yaml
 conda activate dviont_env
 pip install .
+hash -r          # refresh the shell's command lookup so `dviont` is found
 download_clair3_models                                   # Linux/HPC only
 ```
 
@@ -95,8 +98,10 @@ Check the installed version with `dviont -v`.
 
 ## Clair3 models
 
-- **Linux/HPC:** `download_clair3_models` saves models into the `models` sub-directory of the installed dviONT package, which is where dviONT looks when `-p/--model-path` is omitted. Without arguments it downloads `r1041_e82_400bps_sup_v430_bacteria_finetuned`, `r1041_e82_400bps_sup_v500`, `r1041_e82_400bps_sup_v420` and `r941_prom_sup_g5014`. To download specific models or use another location: `download_clair3_models [--output_dir DIR] [model_name ...]` (then pass `-p DIR/<model_name>`).
-- **macOS:** always pass `-p "$CONDA_PREFIX/bin/models/<model_name>"`.
+dviONT finds the model named by `-m/--model-name` automatically. It looks in the `models` sub-directory of the installed dviONT package and in the models bundled with Clair3 (`$CONDA_PREFIX/bin/models`), and only uses a model whose format matches the installed Clair3 version (TensorFlow for Clair3 v1, PyTorch for Clair3 v2). Use `-p/--model-path` to point at a specific model directory instead.
+
+- **Linux/HPC:** `download_clair3_models` saves models into the `models` sub-directory of the installed dviONT package. The default `r1041_e82_400bps_sup_v430_bacteria_finetuned` model is not bundled with Clair3 v1, so run it once after installing. Without arguments it downloads `r1041_e82_400bps_sup_v430_bacteria_finetuned`, `r1041_e82_400bps_sup_v500`, `r1041_e82_400bps_sup_v420` and `r941_prom_sup_g5014`. To download specific models or use another location: `download_clair3_models [--output_dir DIR] [model_name ...]` (then pass `-p DIR/<model_name>`).
+- **macOS:** all models listed by `ls "$CONDA_PREFIX/bin/models"` work out of the box; nothing to download.
 
 Choose the model that matches the Dorado basecalling model used for your ONT data.
 
@@ -156,8 +161,6 @@ dviont call \
     -s SAMPLE1 \
     --preset ont-q20
 ```
-
-On macOS, add `-p "$CONDA_PREFIX/bin/models/r1041_e82_400bps_sup_v500"`.
 
 ---
 
