@@ -68,7 +68,6 @@ conda activate dviont_env
 
 # Install dviONT
 pip install .
-hash -r          # refresh the shell's command lookup so `dviont` is found
 
 # Clair3 v2 ships its PyTorch models inside the environment; dviONT finds them automatically
 ls "$CONDA_PREFIX/bin/models"
