@@ -13,6 +13,7 @@ from .version import __version__
 
 
 PRESETS = ["ont-legacy", "ont-q20", "pb-clr", "pb-hifi", "asm"]
+FINAL_VCF_MODES = ["dviont", "clair3"]
 
 
 def add_common_arguments(parser):
@@ -25,6 +26,15 @@ def add_common_arguments(parser):
     )
     parser.add_argument("--preset", choices=PRESETS, default="ont-q20", help="Alignment preset (default: ont-q20)")
     parser.add_argument("--aligner", choices=["minimap2", "winnowmap"], default="minimap2", help="Read aligner (default: minimap2)")
+    parser.add_argument(
+        "--final-vcf", choices=FINAL_VCF_MODES, default="dviont",
+        help=(
+            "Callset used for the final VCF, report, and consensus FASTA. "
+            "'dviont' merges the Clair3 pileup and full-alignment VCFs, normalizes with bcftools norm, "
+            "and resolves multiallelic sites (default). "
+            "'clair3' uses Clair3's native clair3/merge_output.vcf.gz as-is."
+        ),
+    )
 
 
 def build_parser():
@@ -101,6 +111,7 @@ def run_call(args):
     result = run_clair3(
         args.output_dir, fasta_out, bam_output, args.threads,
         args.model_name, args.sample, args.model_path,
+        final_vcf=args.final_vcf,
     )
     if not result:
         raise RuntimeError("Clair3 calling failed")

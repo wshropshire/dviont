@@ -6,15 +6,28 @@ import pysam
 from .merge_vcfs import merge_vcfs
 from .clair3_models import resolve_model_path
 
+FINAL_VCF_MODES = ("dviont", "clair3")
+
 class Clair3Pipeline:
-    def __init__(self, output_dir, ref, bam_output, sample, threads=2, model_name="r1041_e82_400bps_sup_v430_bacteria_finetuned", model_path=None):
-        """Initializes the Clair3Pipeline class."""
+    def __init__(self, output_dir, ref, bam_output, sample, threads=2, model_name="r1041_e82_400bps_sup_v430_bacteria_finetuned", model_path=None, final_vcf="dviont"):
+        """Initializes the Clair3Pipeline class.
+
+        final_vcf selects the callset used for the final VCF and consensus:
+          - "dviont": merge Clair3 pileup and full-alignment VCFs with dviONT's
+            rules, normalize with bcftools norm, and resolve multiallelic sites
+            (default). Retains high-confidence pileup-only calls (typically
+            INDELs) that the full-alignment model misses.
+          - "clair3": use Clair3's native merge_output.vcf.gz as-is.
+        """
+        if final_vcf not in FINAL_VCF_MODES:
+            raise ValueError(f"final_vcf must be one of {FINAL_VCF_MODES}, got {final_vcf!r}")
         self.output_dir = os.path.abspath(output_dir)
         self.ref = os.path.abspath(ref)
         self.bam_output = os.path.abspath(bam_output)
         self.sample = sample
         self.threads = threads
         self.model_name = model_name
+        self.final_vcf = final_vcf
 
         self.model_path = resolve_model_path(model_name, model_path)
 
@@ -50,21 +63,15 @@ class Clair3Pipeline:
             # Remove 'tmp' directory from Clair3 output
             self.cleanup_tmp_folder()
 
-            if self.model_name == "r1041_e82_400bps_sup_v430_bacteria_finetuned":
+            consensus_path = os.path.join(self.output_dir, f"{self.sample}_consensus.fasta")
+
+            if self.final_vcf == "clair3":
                 final_vcf = os.path.join(self.clair3_output_dir, "merge_output.vcf.gz")
                 if not os.path.exists(final_vcf):
                     logging.error("Clair3 did not produce merge_output.vcf.gz.")
                     return None
-
-                subprocess.run(["bcftools", "index", "-f", final_vcf], check=True)
-                consensus_path = os.path.join(self.output_dir, f"{self.sample}_consensus.fasta")
-                with open(consensus_path, "w") as out_fasta:
-                    subprocess.run(
-                        ["bcftools", "consensus", "-f", self.ref, final_vcf],
-                        stdout=out_fasta,
-                        check=True,
-                    )
-                logging.info(f"Consensus FASTA written to: {consensus_path}")
+                logging.info(f"Using native Clair3 callset as final VCF: {final_vcf}")
+                self.generate_consensus(final_vcf, consensus_path)
                 return final_vcf, consensus_path
 
             # Define VCF file paths
@@ -88,6 +95,8 @@ class Clair3Pipeline:
             ]
             logging.info(f"Running bcftools norm: {' '.join(norm_cmd)}")
             subprocess.run(norm_cmd, check=True)
+            # Index so pysam can open the normalized VCF without htslib index warnings
+            subprocess.run(["bcftools", "index", "-f", norm_vcf], check=True)
 
             # Apply filtering for multiallelic sites and sort the VCF
             final_sorted_vcf = os.path.join(self.output_dir, f"{self.sample}_filtered.sorted.vcf.gz")
@@ -96,7 +105,6 @@ class Clair3Pipeline:
             logging.info(f"Clair3 pipeline complete. Final sorted VCF: {final_sorted_vcf}")
 
             # Generate consensus FASTA
-            consensus_path = os.path.join(self.output_dir, f"{self.sample}_consensus.fasta")
             self.generate_consensus(final_sorted_vcf, consensus_path)
 
             return final_sorted_vcf, consensus_path
@@ -172,11 +180,8 @@ class Clair3Pipeline:
 
     def generate_consensus(self, vcf_path, consensus_output_path):
         """Generate consensus FASTA using bcftools."""
-        # Ensure VCF is indexed
-        try:
-            subprocess.run(["bcftools", "index", vcf_path], check=True)
-        except subprocess.CalledProcessError:
-            logging.warning("Indexing failed or already exists.")
+        # Ensure VCF is indexed (force so a stale index from a previous run is never used)
+        subprocess.run(["bcftools", "index", "-f", vcf_path], check=True)
 
         # Generate consensus FASTA
         with open(consensus_output_path, "w") as out_fasta:
@@ -184,12 +189,12 @@ class Clair3Pipeline:
 
         logging.info(f"Consensus FASTA written to: {consensus_output_path}")
 
-def run_clair3(output_dir, ref, bam_output, threads, model_name, sample, model_path=None):
+def run_clair3(output_dir, ref, bam_output, threads, model_name, sample, model_path=None, final_vcf="dviont"):
     """
     Wrapper function to initialize and run Clair3Pipeline.
 
     Returns:
-        str: Path to final sorted VCF file.
+        tuple: (path to final VCF, path to consensus FASTA), or None on failure.
     """
-    pipeline = Clair3Pipeline(output_dir, ref, bam_output, sample, threads, model_name, model_path)
+    pipeline = Clair3Pipeline(output_dir, ref, bam_output, sample, threads, model_name, model_path, final_vcf)
     return pipeline.run_pipeline()

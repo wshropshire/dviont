@@ -55,9 +55,10 @@ def merge_vcfs(pileup_vcf, full_vcf, output_vcf):
         elif full and "PASS" in full["filter"]:
             merged_variants[key] = full["record"]
 
-    # Write merged VCF file
+    # Write merged VCF file in reference order (contig order from the header, then position)
     with pysam.VariantFile(pileup_vcf) as template_vcf, pysam.VariantFile(output_vcf, "w", header=template_vcf.header) as output:
-        for variant in merged_variants.values():
+        contig_order = {name: i for i, name in enumerate(template_vcf.header.contigs)}
+        for variant in sorted(merged_variants.values(), key=lambda r: (contig_order.get(r.chrom, len(contig_order)), r.pos)):
             output.write(variant)
 
     logging.info(f"Merged VCF saved to: {output_vcf}")
