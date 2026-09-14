@@ -254,4 +254,4 @@ Feel free to contribute to the project by submitting issues or pull requests.
 
 ## Version
 
-dviONT v0.5.1
+dviONT v0.6.0
