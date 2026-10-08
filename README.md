@@ -149,7 +149,22 @@ dviont call \
 
 ## Cohort mode
 
-`dviont cohort` runs the ordinary dviONT workflow for multiple ONT read sets against one reference and preserves each sample's outputs. Cohort aggregation uses the final VCF returned by each completed call. It then uses `bcftools consensus` to build a full reference-length pseudoalignment before calculating the pairwise SNP distance matrix.
+`dviont cohort` runs the ordinary dviONT workflow for multiple ONT read sets against one reference and preserves each sample's outputs. Cohort aggregation uses the final VCF returned by each completed call. Every SNP called in any sample becomes a candidate site.
+
+By default (`--consensus genotype`), each sample is then re-genotyped at every candidate site directly from its own BAM.
+- **Candidate sites:** a site gets the majority base if that base has at least `--min-af` (default 0.8) of at least `--min-depth` (default 10) reads with mapping quality ≥ `--min-mapq` (default 5). Otherwise it gets `N`.
+- **All other positions:** these are the reference base only where the sample's reads cover them. Otherwise they are `N`.
+
+As a result, a missing or filtered call is never counted as the reference base without read evidence. A low-support call made in one sample does not become a SNP against samples that were not called at that site. An `N` never adds a difference.
+
+`alignments/cohort.genotype_stats.tsv` reports, for each sample:
+- the callable bases;
+- how many of the sample's own calls were confirmed, overturned to the reference, or masked;
+- how many alternate alleles were recovered at sites it was not called at.
+
+`alignments/cohort.sensitivity_af.tsv` gives pairwise distances at other `--min-af` thresholds (`--sensitivity-af`, default 0.7,0.9).
+
+`--consensus legacy` restores the previous behaviour. That runs `bcftools consensus` of the merged SNP VCF, where any position without a call keeps the reference base. Both modes build a full reference-length pseudoalignment before the pairwise SNP distance matrix is calculated.
 
 Provide a tab-separated samples file with one sample and reads path per line:
 
@@ -180,9 +195,11 @@ cohort_out/
 │   ├── SAMPLE1/
 │   └── SAMPLE2/
 ├── alignments/
-│   ├── consensus_snps/            # Full reference-length sample consensuses
-│   │   ├── SAMPLE1.fasta
-│   │   └── SAMPLE2.fasta
+│   ├── consensus_snps/            # --consensus legacy only: per-sample bcftools consensus
+│   ├── cohort_genotype_samples.tsv
+│   ├── cohort.genotype_stats.tsv  # per-sample callable bp, N counts, call concordance
+│   ├── cohort.sites.tsv           # per candidate site: samples ALT / REF / N
+│   ├── cohort.sensitivity_af.tsv  # pairwise distances at other --min-af values
 │   └── cohort.snp_alignment.fasta
 ├── cohort_vcfs/
 │   ├── cohort_merged.vcf.gz
@@ -195,7 +212,7 @@ cohort_out/
     └── cohort.snp_distance_matrix.tsv
 ```
 
-All consensus sequences are checked against the processed cohort reference length. The final SNP alignment retains reference bases at nonvariant positions and genomic spacing between variants.
+All sequences are checked against the processed cohort reference length. The alignment keeps genomic spacing between variants, so it is suitable for Gubbins. Non-variant positions are the reference base where covered and `N` otherwise (genotype mode).
 
 ---
 

@@ -52,6 +52,23 @@ def build_parser():
     add_common_arguments(cohort)
     cohort.add_argument("--reads-list", required=True, help="Tab-separated sample_id and reads_path file")
     cohort.add_argument("--out", required=True, help="Cohort output directory")
+    cohort.add_argument(
+        "--consensus", choices=["genotype", "legacy"], default="genotype",
+        help=(
+            "How each sample's sequence in the cohort alignment is built. 'genotype' (default): every SNP "
+            "called in any sample is a candidate site, and every sample is re-genotyped at every candidate "
+            "site from its own BAM (majority base if it has >= --min-af of >= --min-depth reads with "
+            "MAPQ >= --min-mapq, else N); other positions are REF only where covered, else N. 'legacy': "
+            "bcftools consensus of the merged VCF, where a missing call is REF (previous behaviour)."
+        ),
+    )
+    cohort.add_argument("--min-depth", type=int, default=10, help="Reads required to genotype a position (default: 10)")
+    cohort.add_argument("--min-af", type=float, default=0.8, help="Majority-base fraction required at a candidate site (default: 0.8)")
+    cohort.add_argument("--min-mapq", type=int, default=5, help="Minimum read mapping quality counted (default: 5)")
+    cohort.add_argument("--max-depth-factor", type=float, default=0,
+                        help="Mask positions with depth > factor x median depth, e.g. collapsed repeats (default: 0 = off)")
+    cohort.add_argument("--sensitivity-af", default="0.7,0.9",
+                        help="Extra --min-af values for alignments/cohort.sensitivity_af.tsv; '' to skip (default: 0.7,0.9)")
     return parser
 
 
@@ -159,7 +176,11 @@ def fasta_sequence_length(path):
 
 
 def write_consensus(vcf, reference, sample, output):
-    """Write one full-reference-length consensus record for a cohort sample."""
+    """Write one full-reference-length consensus record for a cohort sample (--consensus legacy).
+
+    Note: bcftools consensus without --missing/--mask keeps the REF base wherever the sample has no
+    record (missing genotype, no coverage, filtered call, deletion), so an absent call counts as REF.
+    """
     command = [
         "bcftools", "consensus", "-f", str(reference), "-s", sample, str(vcf)
     ]
@@ -218,23 +239,46 @@ def run_cohort(args):
     subprocess.run(["bcftools", "index", "-f", str(filtered)], check=True)
 
     sample_names = [sample for sample, _ in samples]
-    reference_length = fasta_sequence_length(cohort_reference)
-    consensus_fastas = []
-    for sample in sample_names:
-        consensus = consensus_dir / f"{sample}.fasta"
-        consensus_length = write_consensus(filtered, cohort_reference, sample, consensus)
-        if consensus_length != reference_length:
-            raise ValueError(
-                f"Consensus length for {sample} is {consensus_length}; "
-                f"expected reference length {reference_length}"
-            )
-        consensus_fastas.append(consensus)
-
     alignment = alignments_dir / "cohort.snp_alignment.fasta"
-    with open(alignment, "wb") as destination:
-        for consensus in consensus_fastas:
-            with open(consensus, "rb") as source:
-                shutil.copyfileobj(source, destination)
+    if getattr(args, "consensus", "genotype") == "genotype":
+        # Re-genotype every candidate site from each sample's reads; absent calls are not REF.
+        from .cohort_genotype import main as cohort_genotype
+        sample_table = alignments_dir / "cohort_genotype_samples.tsv"
+        with open(sample_table, "w") as handle:
+            for sample, vcf in zip(sample_names, vcfs):
+                bam = calls_dir / sample / f"{sample}_aln_sort.bam"
+                handle.write(f"{sample}\t{bam}\t{vcf}\n")
+        prefix = alignments_dir / "cohort"
+        genotype_args = [
+            "--ref", str(cohort_reference), "--samples", str(sample_table), "--out-prefix", str(prefix),
+            "--sites-vcf", str(filtered), "--keep-filters", "",
+            "--min-depth", str(args.min_depth), "--min-af", str(args.min_af), "--min-mapq", str(args.min_mapq),
+            "--max-depth-factor", str(args.max_depth_factor), "--threads", str(args.threads),
+        ]
+        if args.sensitivity_af:
+            genotype_args += ["--sensitivity-af", args.sensitivity_af]
+        cohort_genotype(genotype_args)
+        os.replace(f"{prefix}.aln.fasta", alignment)
+        reference_length = fasta_sequence_length(cohort_reference)
+        lengths = {len(line.strip()) for line in open(alignment) if not line.startswith(">")}
+        if lengths != {reference_length}:
+            raise ValueError(f"Cohort alignment lengths {sorted(lengths)} != reference length {reference_length}")
+    else:
+        reference_length = fasta_sequence_length(cohort_reference)
+        consensus_fastas = []
+        for sample in sample_names:
+            consensus = consensus_dir / f"{sample}.fasta"
+            consensus_length = write_consensus(filtered, cohort_reference, sample, consensus)
+            if consensus_length != reference_length:
+                raise ValueError(
+                    f"Consensus length for {sample} is {consensus_length}; "
+                    f"expected reference length {reference_length}"
+                )
+            consensus_fastas.append(consensus)
+        with open(alignment, "wb") as destination:
+            for consensus in consensus_fastas:
+                with open(consensus, "rb") as source:
+                    shutil.copyfileobj(source, destination)
 
     distances = distances_dir / "cohort.snp_distance_matrix.tsv"
     with open(distances, "w") as handle:
